@@ -12,7 +12,10 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text= "Search" />
+        android:id="@+id/search_artist"
+        android:imeOptions="actionSend"
+        android:inputType="textCapWords"
+        android:hint= "@string/search" />
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

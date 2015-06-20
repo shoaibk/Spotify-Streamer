@@ -1,12 +1,19 @@
 package ca.shoaib.spotifystreamer;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,12 +26,23 @@ import kaaes.spotify.webapi.android.models.ArtistsPager;
 public class SearchArtistActivity extends AppCompatActivity {
 
     /**
+     * Gives the user ability to search for an artist, view the list
+     * of artists and choose one for details
+     */
+
+    /**
+     * TODO: If no artists are found, display a toast stating this or write a similar message to the layout.
+     * TODO: create TopTracks activity, create layouts, create adapter
      *
+     * TODO: create Playback activity
+     * TODO: create db and use
+     * TODO: use progressive search
      */
 
     public static final String DEBUG_TAG = SearchArtistActivity.class.getSimpleName();
     private List<Artist> artistsInListView;
     private ArtistAdapter adapter;
+    private EditText searchInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +59,31 @@ public class SearchArtistActivity extends AppCompatActivity {
         ListView artistList = (ListView)findViewById(R.id.list_artist);
         artistList.setAdapter(adapter);
 
-        SearchArtistTask searchArtistTask = new SearchArtistTask();
-        searchArtistTask.execute("Coldplay");
+        searchInput = (EditText) findViewById(R.id.search_artist);
+        searchInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_SEND) {
+                    String searchText = searchInput.getText().toString();
+
+                    if(!searchText.isEmpty()) {
+                        SearchArtistTask searchArtistTask = new SearchArtistTask();
+                        searchArtistTask.execute(searchText);
+
+                        // hide keyboard
+                        InputMethodManager in = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        in.hideSoftInputFromWindow(v.getWindowToken(),
+                                InputMethodManager.HIDE_NOT_ALWAYS);
+
+                        handled = true;
+                    }
+                }
+                return handled;
+            }
+        });
+
+
     }
 
     @Override
@@ -84,9 +125,15 @@ public class SearchArtistActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(List<Artist> artists) {
-            artistsInListView.clear();
-            artistsInListView.addAll(artists);
-            adapter.notifyDataSetChanged();
+            if(artists.isEmpty()){
+                Toast.makeText(getApplicationContext(), "No artists", Toast.LENGTH_SHORT).show();
+
+            } else {
+                artistsInListView.clear();
+                artistsInListView.addAll(artists);
+                adapter.notifyDataSetChanged();
+            }
+
         }
     }
 }
