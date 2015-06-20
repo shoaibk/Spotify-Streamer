@@ -1,6 +1,7 @@
 package ca.shoaib.spotifystreamer;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -8,8 +9,10 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -31,9 +34,9 @@ public class SearchArtistActivity extends AppCompatActivity {
      */
 
     /**
-     * TODO: If no artists are found, display a toast stating this or write a similar message to the layout.
-     * TODO: create TopTracks activity, create layouts, create adapter
-     *
+     * TODO: When TopTracksActicity returns, it should not create new activity again, but just show
+     * the previous search result
+     * TODO: create TopTracksActivity, create layouts, create adapter
      * TODO: create Playback activity
      * TODO: create db and use
      * TODO: use progressive search
@@ -84,6 +87,18 @@ public class SearchArtistActivity extends AppCompatActivity {
         });
 
 
+        artistList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getApplicationContext(), TopTracksActivity.class);
+                //intent.putExtra(MESSAGE_TYPE, m.getMessage_type());
+
+                //intent.putExtra(NEW_MESSAGE, m);
+                Artist chosenArtist = (Artist)artistsInListView.get(position);
+                intent.putExtra("ArtistId", chosenArtist.id);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
