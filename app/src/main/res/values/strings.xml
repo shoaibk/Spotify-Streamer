@@ -9,5 +9,6 @@
     <string name="empty_string"> </string>
     <string name="no_artist_toast">No artists found. Please refine your search.</string>
     <string name="no_track_toast">No tracks found. Please refine your search.</string>
+    <string name="no_internet_toast">No Internet</string>
 
 </resources>

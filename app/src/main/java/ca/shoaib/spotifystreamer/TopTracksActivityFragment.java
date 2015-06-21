@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -27,9 +26,10 @@ import kaaes.spotify.webapi.android.models.Tracks;
 public class TopTracksActivityFragment extends Fragment {
 
     public static final String TAG = TopTracksActivityFragment.class.getSimpleName();
+    private static final String KEY_TRACKS = "tracks";
 
     private TopTracksAdapter adapter;
-    private List<Track> tracksInListView;
+    private ArrayList<TrackData> tracksInListView;
 
     public TopTracksActivityFragment() {
     }
@@ -37,6 +37,7 @@ public class TopTracksActivityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         tracksInListView = new ArrayList<>();
         adapter = new TopTracksAdapter(getActivity(), R.layout.track_row, tracksInListView);
 
@@ -45,51 +46,65 @@ public class TopTracksActivityFragment extends Fragment {
         ListView listView = (ListView) rootView.findViewById(R.id.list_top_tracks);
         listView.setAdapter(adapter);
 
-        Bundle extras = getActivity().getIntent().getExtras();
-
-        String artistId = "";
-        if (extras != null) {
-            artistId = extras.getString(SearchArtistActivity.ARTIST_ID);
-        }
-
-        new TopTracksTask().execute(artistId);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView adapterView, View view, int position, long l) {
-
+        if( savedInstanceState != null ) {
+            tracksInListView = savedInstanceState.getParcelableArrayList(KEY_TRACKS);
+            adapter = new TopTracksAdapter(getActivity(), R.layout.track_row, tracksInListView);
+            listView.setAdapter(adapter);
+        } else {
+            Bundle extras = getActivity().getIntent().getExtras();
+            String artistId = "";
+            if (extras != null) {
+                artistId = extras.getString(SearchArtistActivity.ARTIST_ID);
             }
-        });
+
+            if(Utilities.isOnline(getActivity().getApplicationContext())) {
+                new TopTracksTask().execute(artistId);
+            } else {
+                Utilities.showToastOffline(getActivity().getApplicationContext());
+            }
+
+        }
 
         return rootView;
 
     }
 
-    private class TopTracksTask extends AsyncTask<String, Integer, List<Track>> {
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(KEY_TRACKS, tracksInListView);
+    }
 
-        protected List<Track> doInBackground(String... params) {
+    private class TopTracksTask extends AsyncTask<String, Void, List<TrackData>> {
 
-            SpotifyApi api = new SpotifyApi();
-            SpotifyService spotify = api.getService();
-            Tracks tracks;
+        protected List<TrackData> doInBackground(String... params) {
 
-            Map<String, Object> queryMap = new HashMap<>();
+            List<TrackData> trackDataList = new ArrayList<>();
+            try {
+                SpotifyApi api = new SpotifyApi();
+                SpotifyService spotify = api.getService();
+                Tracks tracks;
 
-            queryMap.put("country", "US");
-            tracks = spotify.getArtistTopTrack(params[0], queryMap);
+                Map<String, Object> queryParams = new HashMap<>();
 
-            Log.d(TAG, tracks.toString());
-            return tracks.tracks;
+                queryParams.put("country", "US");
+                tracks = spotify.getArtistTopTrack(params[0], queryParams);
+
+                for(Track track: tracks.tracks) {
+                    TrackData trackData = new TrackData(track);
+                    trackDataList.add(trackData);
+                    Log.d(TAG, trackData.toString());
+                }
+            } catch (Exception e) {
+                Log.d(TAG, "Exception", e);
+            }
+
+            return trackDataList;
         }
 
-        protected void onProgressUpdate(Integer... progress) {
-        }
-
-        protected void onPostExecute(List<Track> tracks) {
+        protected void onPostExecute(List<TrackData> tracks) {
             if(tracks.isEmpty()){
                 Toast.makeText(getActivity(), R.string.no_track_toast, Toast.LENGTH_LONG).show();
-
             } else {
                 tracksInListView.clear();
                 tracksInListView.addAll(tracks);

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,17 +34,15 @@ public class SearchArtistActivity extends AppCompatActivity {
      */
 
     /**
-     * TODO: When TopTracksActicity returns, it should not create new activity again, but just show
-     * the previous search result
      * TODO: create Playback activity
-     * TODO: create db and use
      * TODO: use progressive search
      */
 
     public static final String ARTIST_ID = "artist_id";
 
-    private static final String DEBUG_TAG = SearchArtistActivity.class.getSimpleName();
-    private List<Artist> artistsInListView;
+    private static final String TAG = SearchArtistActivity.class.getSimpleName();
+    public static final String KEY_ARTISTS = "artists";
+    private ArrayList<ArtistData> artistsInListView;
     private ArtistAdapter adapter;
     private EditText searchInput;
 
@@ -61,6 +60,14 @@ public class SearchArtistActivity extends AppCompatActivity {
         artistList.setAdapter(adapter);
 
         searchInput = (EditText) findViewById(R.id.search_artist);
+
+        if( savedInstanceState != null ) {
+            artistsInListView = savedInstanceState.getParcelableArrayList(KEY_ARTISTS);
+            adapter = new ArtistAdapter(this,
+                    android.R.layout.simple_list_item_1, artistsInListView);
+            artistList.setAdapter(adapter);
+        }
+
         searchInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -69,8 +76,11 @@ public class SearchArtistActivity extends AppCompatActivity {
                     String searchText = searchInput.getText().toString();
 
                     if(!searchText.isEmpty()) {
-                        SearchArtistTask searchArtistTask = new SearchArtistTask();
-                        searchArtistTask.execute(searchText);
+                        if(Utilities.isOnline(getApplicationContext())) {
+                            new SearchArtistTask().execute(searchText);
+                        } else {
+                            Utilities.showToastOffline(getApplicationContext());
+                        }
 
                         // hide keyboard
                         InputMethodManager in = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -88,13 +98,14 @@ public class SearchArtistActivity extends AppCompatActivity {
         artistList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getApplicationContext(), TopTracksActivity.class);
-                //intent.putExtra(MESSAGE_TYPE, m.getMessage_type());
-
-                //intent.putExtra(NEW_MESSAGE, m);
-                Artist chosenArtist = (Artist)artistsInListView.get(position);
-                intent.putExtra(ARTIST_ID, chosenArtist.id);
-                startActivity(intent);
+                if(Utilities.isOnline(getApplicationContext())) {
+                    Intent intent = new Intent(getApplicationContext(), TopTracksActivity.class);
+                    ArtistData chosenArtist = artistsInListView.get(position);
+                    intent.putExtra(ARTIST_ID, chosenArtist.getArtistId());
+                    startActivity(intent);
+                } else {
+                    Utilities.showToastOffline(getApplicationContext());
+                }
             }
         });
     }
@@ -121,22 +132,40 @@ public class SearchArtistActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(KEY_ARTISTS, artistsInListView);
+    }
 
-    private class SearchArtistTask extends AsyncTask<String, Integer, List<Artist>> {
 
-        protected List<Artist> doInBackground(String... artistName) {
+    private class SearchArtistTask extends AsyncTask<String, Integer, List<ArtistData>> {
 
-            SpotifyApi api = new SpotifyApi();
-            SpotifyService spotify = api.getService();
-            ArtistsPager results = spotify.searchArtists(artistName[0]);
+        protected List<ArtistData> doInBackground(String... artistName) {
 
-            return results.artists.items;
+            List<ArtistData> artistListData = new ArrayList<>();
+
+            try {
+                SpotifyApi api = new SpotifyApi();
+                SpotifyService spotify = api.getService();
+                ArtistsPager results = spotify.searchArtists(artistName[0]);
+
+                for(Artist artist: results.artists.items) {
+                    ArtistData artistData = new ArtistData(artist);
+                    artistListData.add(artistData);
+                    Log.d(TAG, artistData.toString());
+                }
+            } catch (Exception e) {
+                Log.d(TAG, "Exception", e);
+            }
+
+            return artistListData;
         }
 
         protected void onProgressUpdate(Integer... progress) {
         }
 
-        protected void onPostExecute(List<Artist> artists) {
+        protected void onPostExecute(List<ArtistData> artists) {
             if(artists.isEmpty()){
                 Toast.makeText(getApplicationContext(), R.string.no_artist_toast, Toast.LENGTH_LONG).show();
 

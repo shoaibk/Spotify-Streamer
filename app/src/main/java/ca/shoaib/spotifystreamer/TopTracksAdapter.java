@@ -13,18 +13,16 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-import kaaes.spotify.webapi.android.models.Track;
-
 /**
  * Created by khan on 2015-06-20.
  */
-public class TopTracksAdapter extends ArrayAdapter<Track> {
+public class TopTracksAdapter extends ArrayAdapter<TrackData> {
 
     Context context;
 
 
     public TopTracksAdapter(Context context, int resourceId,
-                         List<Track> items) {
+                         List<TrackData> items) {
         super(context, resourceId, items);
         this.context = context;
 
@@ -35,22 +33,21 @@ public class TopTracksAdapter extends ArrayAdapter<Track> {
         LayoutInflater mInflater = (LayoutInflater) context
                 .getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
 
-        Track track = getItem(position);
+        TrackData track = getItem(position);
         if (convertView == null) {
             convertView = mInflater.inflate(R.layout.track_row, null);
         }
 
         ImageView icon = (ImageView) convertView.findViewById(R.id.track_row_icon);
-        if(track.album.images.size() > 1) {
-            String url = track.album.images.get(1).url;
-            Picasso.with(context).load(url).into(icon);
-        }
+
+        String url = track.getImageThumbnailUrl();
+        Picasso.with(context).load(url).into(icon);
 
         TextView trackName = (TextView) convertView.findViewById(R.id.track_name);
-        trackName.setText(track.name);
+        trackName.setText(track.getTrackName());
 
         TextView albumName = (TextView) convertView.findViewById(R.id.album_name);
-        albumName.setText(track.album.name);
+        albumName.setText(track.getAlbumName());
 
         return convertView;
     }
