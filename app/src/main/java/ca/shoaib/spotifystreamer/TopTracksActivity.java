@@ -7,6 +7,8 @@ import android.view.MenuItem;
 
 public class TopTracksActivity extends AppCompatActivity {
 
+    public static final String DEBUG_TAG = TopTracksActivity.class.getSimpleName();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

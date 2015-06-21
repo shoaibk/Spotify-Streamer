@@ -22,11 +22,11 @@ import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.Tracks;
 
 /**
- * A placeholder fragment containing a simple view.
+ * A fragment containing List of Tracks for an Artist.
  */
 public class TopTracksActivityFragment extends Fragment {
 
-    public static final String TAG = TopTracksTask.class.getSimpleName();
+    public static final String TAG = TopTracksActivityFragment.class.getSimpleName();
 
     private TopTracksAdapter adapter;
     private List<Track> tracksInListView;
@@ -49,7 +49,7 @@ public class TopTracksActivityFragment extends Fragment {
 
         String artistId = "";
         if (extras != null) {
-            artistId = extras.getString("ArtistId");
+            artistId = extras.getString(SearchArtistActivity.ARTIST_ID);
         }
 
         new TopTracksTask().execute(artistId);
@@ -79,7 +79,6 @@ public class TopTracksActivityFragment extends Fragment {
             queryMap.put("country", "US");
             tracks = spotify.getArtistTopTrack(params[0], queryMap);
 
-            Log.d(TAG, "In TopTracksTask");
             Log.d(TAG, tracks.toString());
             return tracks.tracks;
         }
@@ -89,7 +88,7 @@ public class TopTracksActivityFragment extends Fragment {
 
         protected void onPostExecute(List<Track> tracks) {
             if(tracks.isEmpty()){
-                Toast.makeText(getActivity(), "No tracks", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), R.string.no_track_toast, Toast.LENGTH_LONG).show();
 
             } else {
                 tracksInListView.clear();

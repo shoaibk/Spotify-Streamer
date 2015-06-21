@@ -22,7 +22,7 @@
             android:id="@+id/track_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Track"
+            android:text="@string/empty_string"
             android:paddingTop="16dp"
             android:paddingBottom="0dp"
             android:textSize="16sp" />
@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="0dp"
-            android:text="Album"
+            android:text="@string/empty_string"
             android:textSize="14sp" />
     </LinearLayout>
 

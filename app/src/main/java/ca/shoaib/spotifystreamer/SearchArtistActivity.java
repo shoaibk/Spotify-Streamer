@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,13 +35,14 @@ public class SearchArtistActivity extends AppCompatActivity {
     /**
      * TODO: When TopTracksActicity returns, it should not create new activity again, but just show
      * the previous search result
-     * TODO: create TopTracksActivity, create layouts, create adapter
      * TODO: create Playback activity
      * TODO: create db and use
      * TODO: use progressive search
      */
 
-    public static final String DEBUG_TAG = SearchArtistActivity.class.getSimpleName();
+    public static final String ARTIST_ID = "artist_id";
+
+    private static final String DEBUG_TAG = SearchArtistActivity.class.getSimpleName();
     private List<Artist> artistsInListView;
     private ArtistAdapter adapter;
     private EditText searchInput;
@@ -51,8 +51,6 @@ public class SearchArtistActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_artist);
-
-        Log.d(DEBUG_TAG, "In onCreate() ");
 
         artistsInListView = new ArrayList<>();
 
@@ -95,7 +93,7 @@ public class SearchArtistActivity extends AppCompatActivity {
 
                 //intent.putExtra(NEW_MESSAGE, m);
                 Artist chosenArtist = (Artist)artistsInListView.get(position);
-                intent.putExtra("ArtistId", chosenArtist.id);
+                intent.putExtra(ARTIST_ID, chosenArtist.id);
                 startActivity(intent);
             }
         });
@@ -128,7 +126,6 @@ public class SearchArtistActivity extends AppCompatActivity {
 
         protected List<Artist> doInBackground(String... artistName) {
 
-            Log.d(DEBUG_TAG, "In doInBackground: ");
             SpotifyApi api = new SpotifyApi();
             SpotifyService spotify = api.getService();
             ArtistsPager results = spotify.searchArtists(artistName[0]);
@@ -141,7 +138,7 @@ public class SearchArtistActivity extends AppCompatActivity {
 
         protected void onPostExecute(List<Artist> artists) {
             if(artists.isEmpty()){
-                Toast.makeText(getApplicationContext(), "No artists", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.no_artist_toast, Toast.LENGTH_LONG).show();
 
             } else {
                 artistsInListView.clear();
