@@ -59,8 +59,6 @@ public class TopTracksActivityFragment extends Fragment {
 
             if(Utilities.isOnline(getActivity().getApplicationContext())) {
                 new TopTracksTask().execute(artistId);
-            } else {
-                Utilities.showToastOffline(getActivity().getApplicationContext());
             }
 
         }

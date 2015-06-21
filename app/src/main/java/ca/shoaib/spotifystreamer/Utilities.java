@@ -8,10 +8,13 @@ import android.widget.Toast;
 /**
  * Created by khan on 2015-06-21.
  */
-public class Utilities {
+public final class Utilities {
 
-    public static void showToastOffline(Context context) {
-        Toast.makeText(context, R.string.no_internet_toast, Toast.LENGTH_LONG).show();
+    public static Toast showToast(Toast toast, Context context, String text) {
+        if(toast != null) toast.cancel();
+        toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
+        toast.show();
+        return toast;
     }
 
     public static boolean isOnline(Context context) {

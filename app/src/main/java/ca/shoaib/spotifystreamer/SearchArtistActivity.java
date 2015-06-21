@@ -35,8 +35,6 @@ public class SearchArtistActivity extends AppCompatActivity {
 
     /**
      * TODO: use progressive search
-     * TODO:
-
      * TODO: create Playback activity
      */
 
@@ -47,11 +45,16 @@ public class SearchArtistActivity extends AppCompatActivity {
     private ArrayList<ArtistData> artistsInListView;
     private ArtistAdapter adapter;
     private EditText searchInput;
+    private Toast noInternetToast;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_artist);
+
+
 
         artistsInListView = new ArrayList<>();
 
@@ -81,7 +84,7 @@ public class SearchArtistActivity extends AppCompatActivity {
                         if(Utilities.isOnline(getApplicationContext())) {
                             new SearchArtistTask().execute(searchText);
                         } else {
-                            Utilities.showToastOffline(getApplicationContext());
+                            noInternetToast = Utilities.showToast(noInternetToast, getApplicationContext(), getString(R.string.no_internet_toast));
                         }
 
                         // hide keyboard
@@ -106,7 +109,7 @@ public class SearchArtistActivity extends AppCompatActivity {
                     intent.putExtra(ARTIST_ID, chosenArtist.getArtistId());
                     startActivity(intent);
                 } else {
-                    Utilities.showToastOffline(getApplicationContext());
+                    noInternetToast = Utilities.showToast(noInternetToast, getApplicationContext(), getString(R.string.no_internet_toast));
                 }
             }
         });
