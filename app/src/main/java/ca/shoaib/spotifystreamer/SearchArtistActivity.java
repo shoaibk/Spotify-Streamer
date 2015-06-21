@@ -34,8 +34,10 @@ public class SearchArtistActivity extends AppCompatActivity {
      */
 
     /**
-     * TODO: create Playback activity
      * TODO: use progressive search
+     * TODO:
+
+     * TODO: create Playback activity
      */
 
     public static final String ARTIST_ID = "artist_id";

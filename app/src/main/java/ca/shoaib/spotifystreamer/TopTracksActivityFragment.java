@@ -88,6 +88,10 @@ public class TopTracksActivityFragment extends Fragment {
                 Map<String, Object> queryParams = new HashMap<>();
 
                 queryParams.put("country", "US");
+                /*
+                use web api to fetch top tracks of the artist. Example url:
+                https://api.spotify.com/v1/artists/43ZHCT0cAZBISjO8DG9PnE/top-tracks?country=US
+                 */
                 tracks = spotify.getArtistTopTrack(params[0], queryParams);
 
                 for(Track track: tracks.tracks) {
