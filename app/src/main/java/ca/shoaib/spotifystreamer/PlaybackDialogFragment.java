@@ -23,9 +23,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-/**
- * Created by khan on 2015-06-27.
- */
 
 public class PlaybackDialogFragment extends DialogFragment {
     /** The system calls this to get the DialogFragment's layout, regardless

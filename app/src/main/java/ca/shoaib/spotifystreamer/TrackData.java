@@ -24,9 +24,6 @@ import java.util.List;
 import kaaes.spotify.webapi.android.models.Image;
 import kaaes.spotify.webapi.android.models.Track;
 
-/**
- * Created by khan on 2015-06-20.
- */
 public class TrackData implements Parcelable {
 
     private String trackName;

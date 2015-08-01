@@ -29,9 +29,6 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-/**
- * Created by khan on 2015-06-20.
- */
 public class TopTracksAdapter extends ArrayAdapter<TrackData> {
 
     Context context;

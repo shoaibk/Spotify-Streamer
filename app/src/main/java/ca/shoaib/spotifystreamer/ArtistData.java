@@ -24,9 +24,6 @@ import java.util.List;
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.Image;
 
-/**
- * Created by khan on 2015-06-21.
- */
 public class ArtistData implements Parcelable {
 
     private String artistName;

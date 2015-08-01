@@ -21,9 +21,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.widget.Toast;
 
-/**
- * Created by khan on 2015-06-21.
- */
 public final class Utilities {
 
     public static Toast showToast(Toast toast, Context context, String text) {
