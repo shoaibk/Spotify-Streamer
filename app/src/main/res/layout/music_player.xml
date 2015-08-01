@@ -1,0 +1,82 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray"
+    android:padding="@dimen/abc_dialog_padding_material"
+    android:orientation="vertical"
+    android:weightSum="1">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/player_artist_name"
+        android:layout_gravity="center_horizontal"
+        android:text="Coldplay"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/player_album_name"
+        android:layout_gravity="center_horizontal"
+        android:text="Ghost Stories"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:background="#33ee45"
+        android:contentDescription="@string/app_name"
+        android:scaleType="center"
+        android:src="@mipmap/ic_launcher" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/player_track_name"
+        android:layout_gravity="center_horizontal"
+        android:text="A sky full of stars"/>
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/player_seekBar"
+        android:layout_gravity="center_horizontal" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        >
+
+        <ImageView
+            android:id="@+id/player_prev"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:background="#cecece"
+            android:contentDescription="prev"
+            android:layout_marginRight="16dp"
+            android:src="@android:drawable/ic_media_previous" />
+
+        <ImageView
+            android:id="@+id/player_play"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:background="#cecece"
+            android:contentDescription="play"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:src="@android:drawable/ic_media_play" />
+
+        <ImageView
+            android:id="@+id/player_next"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:background="#cecece"
+            android:layout_marginLeft="16dp"
+            android:contentDescription="next"
+            android:src="@android:drawable/ic_media_next" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -18,6 +18,8 @@ public class TrackData implements Parcelable {
     private String albumName;
     private String imageThumbnailUrl;
 
+    private static final int IMAGE_THUMBNAIL_WIDTH_MIN = 175;
+    private static final int IMAGE_THUMBNAIL_WIDTH_MAX = 350;
 
     public TrackData(Track track) {
         trackName = track.name;
@@ -25,7 +27,8 @@ public class TrackData implements Parcelable {
         albumName = track.album.name;
         List<Image> images = track.album.images;
         for (Image image:images) {
-            if(image.width >= 175 && image.width <= 350) imageThumbnailUrl = image.url;
+            if(image.width >= IMAGE_THUMBNAIL_WIDTH_MIN
+                    && image.width <= IMAGE_THUMBNAIL_WIDTH_MAX) imageThumbnailUrl = image.url;
         }
     }
 

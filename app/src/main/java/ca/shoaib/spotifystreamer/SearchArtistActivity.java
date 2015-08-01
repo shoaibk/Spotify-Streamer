@@ -34,6 +34,8 @@ public class SearchArtistActivity extends AppCompatActivity {
      */
 
     /**
+     * TODO: use fragment for SearchArtistActivity
+     * TODO: create and show layout when no artist is found
      * TODO: use progressive search
      * TODO: create Playback activity
      */
@@ -54,24 +56,17 @@ public class SearchArtistActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_artist);
 
-
-
+        searchInput = (EditText) findViewById(R.id.search_artist);
         artistsInListView = new ArrayList<>();
 
-        adapter = new ArtistAdapter(this,
-                android.R.layout.simple_list_item_1, artistsInListView);
-
         ListView artistList = (ListView)findViewById(R.id.list_artist);
-        artistList.setAdapter(adapter);
-
-        searchInput = (EditText) findViewById(R.id.search_artist);
-
         if( savedInstanceState != null ) {
             artistsInListView = savedInstanceState.getParcelableArrayList(KEY_ARTISTS);
-            adapter = new ArtistAdapter(this,
-                    android.R.layout.simple_list_item_1, artistsInListView);
-            artistList.setAdapter(adapter);
         }
+        adapter = new ArtistAdapter(this,
+                android.R.layout.simple_list_item_1,
+                artistsInListView);
+        artistList.setAdapter(adapter);
 
         searchInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override

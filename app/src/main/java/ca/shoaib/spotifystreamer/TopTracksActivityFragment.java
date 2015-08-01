@@ -1,5 +1,6 @@
 package ca.shoaib.spotifystreamer;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -7,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -31,25 +33,38 @@ public class TopTracksActivityFragment extends Fragment {
     private TopTracksAdapter adapter;
     private ArrayList<TrackData> tracksInListView;
 
+    /**
+     * The fragment's current callback object, which is notified of list item
+     * clicks.
+     */
+    private TrackListCallback mTrackListCallback;
+
     public TopTracksActivityFragment() {
     }
+
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface TrackListCallback {
+        /**
+         * Callback for when an item has been selected.
+         */
+        public void onTrackSelected(TrackData track);
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         tracksInListView = new ArrayList<>();
-        adapter = new TopTracksAdapter(getActivity(), R.layout.track_row, tracksInListView);
-
         View rootView = inflater.inflate(R.layout.fragment_top_tracks, container, false);
-
         ListView listView = (ListView) rootView.findViewById(R.id.list_top_tracks);
-        listView.setAdapter(adapter);
 
         if( savedInstanceState != null ) {
             tracksInListView = savedInstanceState.getParcelableArrayList(KEY_TRACKS);
-            adapter = new TopTracksAdapter(getActivity(), R.layout.track_row, tracksInListView);
-            listView.setAdapter(adapter);
         } else {
             Bundle extras = getActivity().getIntent().getExtras();
             String artistId = "";
@@ -60,12 +75,33 @@ public class TopTracksActivityFragment extends Fragment {
             if(Utilities.isOnline(getActivity().getApplicationContext())) {
                 new TopTracksTask().execute(artistId);
             }
-
         }
 
-        return rootView;
+        adapter = new TopTracksAdapter(getActivity(), R.layout.track_row, tracksInListView);
+        listView.setAdapter(adapter);
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mTrackListCallback.onTrackSelected(tracksInListView.get(position));
+            }
+        });
+
+        return rootView;
     }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        // Activities containing this fragment must implement its callbacks.
+        if (!(activity instanceof TrackListCallback)) {
+            throw new IllegalStateException("Activity must implement TrackListCallback.");
+        }
+
+        mTrackListCallback = (TrackListCallback) activity;
+    }
+
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
