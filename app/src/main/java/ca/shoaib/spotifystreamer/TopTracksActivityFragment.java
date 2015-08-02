@@ -17,26 +17,15 @@
 package ca.shoaib.spotifystreamer;
 
 import android.app.Activity;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import kaaes.spotify.webapi.android.SpotifyApi;
-import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.Track;
-import kaaes.spotify.webapi.android.models.Tracks;
 
 /**
  * A fragment containing List of Tracks for an Artist.
@@ -46,8 +35,8 @@ public class TopTracksActivityFragment extends Fragment {
     public static final String TAG = TopTracksActivityFragment.class.getSimpleName();
     private static final String KEY_TRACKS = "tracks";
 
-    private TopTracksAdapter adapter;
-    private ArrayList<TrackData> tracksInListView;
+    private TopTracksAdapter tracksAdapter;
+    private ArrayList<TrackData> trackList;
 
     /**
      * The fragment's current callback object, which is notified of list item
@@ -75,12 +64,15 @@ public class TopTracksActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        tracksInListView = new ArrayList<>();
+        trackList = new ArrayList<>();
         View rootView = inflater.inflate(R.layout.fragment_top_tracks, container, false);
         ListView listView = (ListView) rootView.findViewById(R.id.list_top_tracks);
 
+        tracksAdapter = new TopTracksAdapter(getActivity(), R.layout.track_row, trackList);
+        listView.setAdapter(tracksAdapter);
+
         if( savedInstanceState != null ) {
-            tracksInListView = savedInstanceState.getParcelableArrayList(KEY_TRACKS);
+            trackList = savedInstanceState.getParcelableArrayList(KEY_TRACKS);
         } else {
             Bundle extras = getActivity().getIntent().getExtras();
             String artistId = "";
@@ -89,17 +81,17 @@ public class TopTracksActivityFragment extends Fragment {
             }
 
             if(Utilities.isOnline(getActivity().getApplicationContext())) {
-                new TopTracksTask().execute(artistId);
+                TopTracksTask topTracksTask = new TopTracksTask(getActivity().getApplicationContext(), trackList, tracksAdapter);
+                topTracksTask.execute(artistId);
             }
         }
 
-        adapter = new TopTracksAdapter(getActivity(), R.layout.track_row, tracksInListView);
-        listView.setAdapter(adapter);
+
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mTrackListCallback.onTrackSelected(tracksInListView.get(position));
+                mTrackListCallback.onTrackSelected(trackList.get(position));
             }
         });
 
@@ -122,49 +114,6 @@ public class TopTracksActivityFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(KEY_TRACKS, tracksInListView);
-    }
-
-    private class TopTracksTask extends AsyncTask<String, Void, List<TrackData>> {
-
-        protected List<TrackData> doInBackground(String... params) {
-
-            List<TrackData> trackDataList = new ArrayList<>();
-            try {
-                SpotifyApi api = new SpotifyApi();
-                SpotifyService spotify = api.getService();
-                Tracks tracks;
-
-                Map<String, Object> queryParams = new HashMap<>();
-
-                queryParams.put("country", "US");
-                /*
-                use web api to fetch top tracks of the artist. Example url:
-                https://api.spotify.com/v1/artists/43ZHCT0cAZBISjO8DG9PnE/top-tracks?country=US
-                 */
-                tracks = spotify.getArtistTopTrack(params[0], queryParams);
-
-                for(Track track: tracks.tracks) {
-                    TrackData trackData = new TrackData(track);
-                    trackDataList.add(trackData);
-                    Log.d(TAG, trackData.toString());
-                }
-            } catch (Exception e) {
-                Log.d(TAG, "Exception", e);
-            }
-
-            return trackDataList;
-        }
-
-        protected void onPostExecute(List<TrackData> tracks) {
-            if(tracks.isEmpty()){
-                Toast.makeText(getActivity(), R.string.no_track_toast, Toast.LENGTH_LONG).show();
-            } else {
-                tracksInListView.clear();
-                tracksInListView.addAll(tracks);
-                adapter.notifyDataSetChanged();
-            }
-
-        }
+        outState.putParcelableArrayList(KEY_TRACKS, trackList);
     }
 }

@@ -26,8 +26,7 @@ import android.view.MenuItem;
 
 import ca.shoaib.spotifystreamer.TopTracksActivityFragment.TrackListCallback;
 
-public class TopTracksActivity extends AppCompatActivity implements
-TrackListCallback{
+public class TopTracksActivity extends AppCompatActivity implements TrackListCallback{
 
     public static final String DEBUG_TAG = TopTracksActivity.class.getSimpleName();
     boolean mIsLargeLayout;

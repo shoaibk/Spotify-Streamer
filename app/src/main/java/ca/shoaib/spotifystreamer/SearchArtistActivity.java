@@ -18,10 +18,8 @@ package ca.shoaib.spotifystreamer;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,12 +33,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import kaaes.spotify.webapi.android.SpotifyApi;
-import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.Artist;
-import kaaes.spotify.webapi.android.models.ArtistsPager;
 
 public class SearchArtistActivity extends AppCompatActivity {
 
@@ -60,12 +52,10 @@ public class SearchArtistActivity extends AppCompatActivity {
 
     private static final String TAG = SearchArtistActivity.class.getSimpleName();
     public static final String KEY_ARTISTS = "artists";
-    private ArrayList<ArtistData> artistsInListView;
-    private ArtistAdapter adapter;
+    private ArrayList<ArtistData> artistList;
+    private ArtistAdapter artistAdapter;
     private EditText searchInput;
     private Toast noInternetToast;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,16 +63,16 @@ public class SearchArtistActivity extends AppCompatActivity {
         setContentView(R.layout.activity_search_artist);
 
         searchInput = (EditText) findViewById(R.id.search_artist);
-        artistsInListView = new ArrayList<>();
+        artistList = new ArrayList<>();
 
-        ListView artistList = (ListView)findViewById(R.id.list_artist);
+        ListView artistListView = (ListView)findViewById(R.id.list_artist);
         if( savedInstanceState != null ) {
-            artistsInListView = savedInstanceState.getParcelableArrayList(KEY_ARTISTS);
+            this.artistList = savedInstanceState.getParcelableArrayList(KEY_ARTISTS);
         }
-        adapter = new ArtistAdapter(this,
+        artistAdapter = new ArtistAdapter(this,
                 android.R.layout.simple_list_item_1,
-                artistsInListView);
-        artistList.setAdapter(adapter);
+                this.artistList);
+        artistListView.setAdapter(artistAdapter);
 
         searchInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -93,7 +83,8 @@ public class SearchArtistActivity extends AppCompatActivity {
 
                     if(!searchText.isEmpty()) {
                         if(Utilities.isOnline(getApplicationContext())) {
-                            new SearchArtistTask().execute(searchText);
+                            SearchArtistTask searchArtistTask = new SearchArtistTask(getApplicationContext(), SearchArtistActivity.this.artistList, artistAdapter);
+                            searchArtistTask.execute(searchText);
                         } else {
                             noInternetToast = Utilities.showToast(noInternetToast, getApplicationContext(), getString(R.string.no_internet_toast));
                         }
@@ -111,12 +102,12 @@ public class SearchArtistActivity extends AppCompatActivity {
         });
 
 
-        artistList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        artistListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if(Utilities.isOnline(getApplicationContext())) {
+                if (Utilities.isOnline(getApplicationContext())) {
                     Intent intent = new Intent(getApplicationContext(), TopTracksActivity.class);
-                    ArtistData chosenArtist = artistsInListView.get(position);
+                    ArtistData chosenArtist = SearchArtistActivity.this.artistList.get(position);
                     intent.putExtra(ARTIST_ID, chosenArtist.getArtistId());
                     startActivity(intent);
                 } else {
@@ -151,46 +142,7 @@ public class SearchArtistActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(KEY_ARTISTS, artistsInListView);
+        outState.putParcelableArrayList(KEY_ARTISTS, artistList);
     }
 
-
-    private class SearchArtistTask extends AsyncTask<String, Integer, List<ArtistData>> {
-
-        protected List<ArtistData> doInBackground(String... artistName) {
-
-            List<ArtistData> artistListData = new ArrayList<>();
-
-            try {
-                SpotifyApi api = new SpotifyApi();
-                SpotifyService spotify = api.getService();
-                ArtistsPager results = spotify.searchArtists(artistName[0]);
-
-                for(Artist artist: results.artists.items) {
-                    ArtistData artistData = new ArtistData(artist);
-                    artistListData.add(artistData);
-                    Log.d(TAG, artistData.toString());
-                }
-            } catch (Exception e) {
-                Log.d(TAG, "Exception", e);
-            }
-
-            return artistListData;
-        }
-
-        protected void onProgressUpdate(Integer... progress) {
-        }
-
-        protected void onPostExecute(List<ArtistData> artists) {
-            if(artists.isEmpty()){
-                Toast.makeText(getApplicationContext(), R.string.no_artist_toast, Toast.LENGTH_LONG).show();
-
-            } else {
-                artistsInListView.clear();
-                artistsInListView.addAll(artists);
-                adapter.notifyDataSetChanged();
-            }
-
-        }
-    }
 }
