@@ -67,6 +67,7 @@ public class TopTracksTask extends AsyncTask<String, Void, List<TrackData>> {
                 Log.d(TAG, trackData.toString());
             }
         } catch (Exception e) {
+            // TODO: catch more specific exception
             Log.d(TAG, "Exception", e);
         }
 

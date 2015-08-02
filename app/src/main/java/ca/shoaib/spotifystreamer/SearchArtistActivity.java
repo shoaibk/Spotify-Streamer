@@ -42,10 +42,18 @@ public class SearchArtistActivity extends AppCompatActivity {
      */
 
     /**
-     * TODO: use fragment for SearchArtistActivity
-     * TODO: create and show layout when no artist is found
+     * TODO: implement Tablet layout
+     * TODO: implement Music Player features - play, pause, next, previous
+     * TODO: implement sharing
+     * TODO: implement Settings menu
+     * TODO: implement Notification
+     *
+     * TODO: layout when no artist is found
+     * TODO: implement sqlist db, content provider for previously searched artists
      * TODO: use progressive search
-     * TODO: create Playback activity
+     * TODO: implement Playback dialog
+     * TODO: create app icon
+     * TODO: use Material Design theme
      */
 
     public static final String ARTIST_ID = "artist_id";

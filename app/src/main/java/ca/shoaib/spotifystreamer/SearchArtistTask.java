@@ -56,6 +56,7 @@ public class SearchArtistTask extends AsyncTask<String, Void, List<ArtistData>> 
                 Log.d(TAG, artistData.toString());
             }
         } catch (Exception e) {
+            // TODO: catch more specific exception
             Log.d(TAG, "Exception", e);
         }
 
