@@ -58,27 +58,23 @@ public class TopTracksActivityFragment extends Fragment {
         void onTrackSelected(TrackData track);
     }
 
-    /*@Override
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (getArguments().containsKey(SearchArtistActivity.ARTIST_ID)) {
-
-            String artistId = getArguments().getString(SearchArtistActivity.ARTIST_ID);
-            if(Utilities.isOnline(getActivity().getApplicationContext())) {
-                TopTracksTask topTracksTask = new TopTracksTask(getActivity()
-                        .getApplicationContext(), trackList, tracksAdapter);
-                topTracksTask.execute(artistId);
-            }
+        if( savedInstanceState != null ) {
+            trackList = savedInstanceState.getParcelableArrayList(KEY_TRACKS);
+        } else {
+            trackList = new ArrayList<>();
         }
-    }*/
+
+    }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        trackList = new ArrayList<>();
+        //trackList = new ArrayList<>();
         View rootView = inflater.inflate(R.layout.fragment_top_tracks, container, false);
         ListView listView = (ListView) rootView.findViewById(R.id.list_top_tracks);
 

@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -73,7 +72,7 @@ public class SearchArtistFragment extends Fragment {
         /**
          * Callback for when an Artist has been selected
          */
-        public void onArtistSelected(String id);
+        void onArtistSelected(String id);
     }
 
     /**
@@ -93,29 +92,31 @@ public class SearchArtistFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        //artistList = new ArrayList<>();
+        if( savedInstanceState != null ) {
+            artistList = savedInstanceState.getParcelableArrayList(KEY_ARTISTS);
+        } else {
+            artistList = new ArrayList<>();
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        artistList = new ArrayList<>();
         View rootView = inflater.inflate(R.layout.fragment_search_artist, container, false);
         mListView = (ListView) rootView.findViewById(R.id.list_artist);
 
         artistAdapter = new ArtistAdapter(getActivity(), R.layout.artist_row, artistList);
         mListView.setAdapter(artistAdapter);
-
-        if( savedInstanceState != null ) {
-            artistList = savedInstanceState.getParcelableArrayList(KEY_ARTISTS);
-        }
+        //mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 mArtistListCallback.onArtistSelected(artistList.get(position).getArtistId());
-                Log.d(TAG, "ArtistId: " + artistList.get(position).getArtistId());
+                mActivatedPosition = position;
+                setActivatedPosition(position);
+                //Log.d(TAG, "ArtistId: " + artistList.get(position).getArtistId());
             }
         });
         searchInput = (EditText) rootView.findViewById(R.id.search_artist);
@@ -148,7 +149,6 @@ public class SearchArtistFragment extends Fragment {
                 return handled;
             }
         });
-
         return rootView;
     }
 

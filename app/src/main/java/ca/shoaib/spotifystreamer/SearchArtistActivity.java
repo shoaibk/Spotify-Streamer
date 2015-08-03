@@ -24,8 +24,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
-import android.widget.Toast;
 
 public class SearchArtistActivity extends AppCompatActivity
         implements SearchArtistFragment.ArtistListCallback,
@@ -55,11 +53,6 @@ public class SearchArtistActivity extends AppCompatActivity
     boolean mTwoPane;
 
     private static final String TAG = SearchArtistActivity.class.getSimpleName();
-//    public static final String KEY_ARTISTS = "artists";
-//    private ArrayList<ArtistData> artistList;
-//    private ArtistAdapter artistAdapter;
-    private EditText searchInput;
-    private Toast noInternetToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,13 +60,13 @@ public class SearchArtistActivity extends AppCompatActivity
         setContentView(R.layout.activity_search_artist);
 
         if(findViewById(R.id.tracks_container) != null) {
+            // we are in Tablet layout
             mTwoPane = true;
             ((SearchArtistFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.fragment_artists))
                     .setActivateOnItemClick(true);
+            Log.d(TAG, "Tablet Layout");
         }
-
-
     }
 
     @Override
@@ -106,7 +99,7 @@ public class SearchArtistActivity extends AppCompatActivity
             // fragment transaction.
             Bundle arguments = new Bundle();
             arguments.putString(ARTIST_ID, id);
-            Log.d(TAG, "ArtistId: " + id);
+            //Log.d(TAG, "ArtistId: " + id);
             TopTracksActivityFragment fragment = new TopTracksActivityFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
