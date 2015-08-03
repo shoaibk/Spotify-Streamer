@@ -14,10 +14,11 @@
   ~ limitations under the License.
   -->
 
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragment"
-    android:name="ca.shoaib.spotifystreamer.TopTracksActivityFragment"
+    android:id="@+id/tracks_container"
+    android:name="ca.shoaib.spotifystreamer.TopTracksActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:context=".TopTracksActivity"
     tools:layout="@layout/fragment_top_tracks" />

@@ -16,25 +16,20 @@
 
 package ca.shoaib.spotifystreamer;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.view.KeyEvent;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-
-public class SearchArtistActivity extends AppCompatActivity {
+public class SearchArtistActivity extends AppCompatActivity
+        implements SearchArtistFragment.ArtistListCallback,
+        TopTracksActivityFragment.TrackListCallback{
 
     /**
      * Gives the user ability to search for an artist, view the list
@@ -57,11 +52,12 @@ public class SearchArtistActivity extends AppCompatActivity {
      */
 
     public static final String ARTIST_ID = "artist_id";
+    boolean mTwoPane;
 
     private static final String TAG = SearchArtistActivity.class.getSimpleName();
-    public static final String KEY_ARTISTS = "artists";
-    private ArrayList<ArtistData> artistList;
-    private ArtistAdapter artistAdapter;
+//    public static final String KEY_ARTISTS = "artists";
+//    private ArrayList<ArtistData> artistList;
+//    private ArtistAdapter artistAdapter;
     private EditText searchInput;
     private Toast noInternetToast;
 
@@ -70,59 +66,14 @@ public class SearchArtistActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_artist);
 
-        searchInput = (EditText) findViewById(R.id.search_artist);
-        artistList = new ArrayList<>();
-
-        ListView artistListView = (ListView)findViewById(R.id.list_artist);
-        if( savedInstanceState != null ) {
-            this.artistList = savedInstanceState.getParcelableArrayList(KEY_ARTISTS);
+        if(findViewById(R.id.tracks_container) != null) {
+            mTwoPane = true;
+            ((SearchArtistFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.fragment_artists))
+                    .setActivateOnItemClick(true);
         }
-        artistAdapter = new ArtistAdapter(this,
-                android.R.layout.simple_list_item_1,
-                this.artistList);
-        artistListView.setAdapter(artistAdapter);
-
-        searchInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_SEND) {
-                    String searchText = searchInput.getText().toString();
-
-                    if(!searchText.isEmpty()) {
-                        if(Utilities.isOnline(getApplicationContext())) {
-                            SearchArtistTask searchArtistTask = new SearchArtistTask(getApplicationContext(), SearchArtistActivity.this.artistList, artistAdapter);
-                            searchArtistTask.execute(searchText);
-                        } else {
-                            noInternetToast = Utilities.showToast(noInternetToast, getApplicationContext(), getString(R.string.no_internet_toast));
-                        }
-
-                        // hide keyboard
-                        InputMethodManager in = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        in.hideSoftInputFromWindow(v.getWindowToken(),
-                                InputMethodManager.HIDE_NOT_ALWAYS);
-
-                        handled = true;
-                    }
-                }
-                return handled;
-            }
-        });
 
 
-        artistListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (Utilities.isOnline(getApplicationContext())) {
-                    Intent intent = new Intent(getApplicationContext(), TopTracksActivity.class);
-                    ArtistData chosenArtist = SearchArtistActivity.this.artistList.get(position);
-                    intent.putExtra(ARTIST_ID, chosenArtist.getArtistId());
-                    startActivity(intent);
-                } else {
-                    noInternetToast = Utilities.showToast(noInternetToast, getApplicationContext(), getString(R.string.no_internet_toast));
-                }
-            }
-        });
     }
 
     @Override
@@ -148,9 +99,51 @@ public class SearchArtistActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(KEY_ARTISTS, artistList);
+    public void onArtistSelected(String id) {
+        if (mTwoPane) {
+            // In two-pane mode, show the tracks view in this activity by
+            // adding or replacing the tracks fragment using a
+            // fragment transaction.
+            Bundle arguments = new Bundle();
+            arguments.putString(ARTIST_ID, id);
+            Log.d(TAG, "ArtistId: " + id);
+            TopTracksActivityFragment fragment = new TopTracksActivityFragment();
+            fragment.setArguments(arguments);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.tracks_container, fragment)
+                    .commit();
+
+        } else {
+            // In single-pane mode, simply start the detail activity
+            // for the selected artist id.
+            Intent intent = new Intent(this, TopTracksActivity.class);
+            intent.putExtra(ARTIST_ID, id);
+            startActivity(intent);
+        }
     }
 
+    @Override
+    public void onTrackSelected(TrackData track) {
+        Log.d(TAG, track.toString());
+        showMusicPlayerDialog();
+    }
+
+    public void showMusicPlayerDialog() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        PlaybackDialogFragment newFragment = new PlaybackDialogFragment();
+
+        if (mTwoPane) {
+            // The device is using a large layout, so show the fragment as a dialog
+            newFragment.show(fragmentManager, "dialog");
+        } else {
+            // The device is smaller, so show the fragment fullscreen
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            // For a little polish, specify a transition animation
+            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            // To make it fullscreen, use the 'content' root view as the container
+            // for the fragment, which is always the root view for the activity
+            transaction.replace(android.R.id.content, newFragment)
+                    .addToBackStack(null).commit();
+        }
+    }
 }

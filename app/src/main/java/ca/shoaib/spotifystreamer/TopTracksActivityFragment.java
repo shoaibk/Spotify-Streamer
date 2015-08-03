@@ -33,8 +33,7 @@ import java.util.ArrayList;
 public class TopTracksActivityFragment extends Fragment {
 
     public static final String TAG = TopTracksActivityFragment.class.getSimpleName();
-    private static final String KEY_TRACKS = "tracks";
-
+    public static final String KEY_TRACKS = "tracks";
     private TopTracksAdapter tracksAdapter;
     private ArrayList<TrackData> trackList;
 
@@ -56,8 +55,23 @@ public class TopTracksActivityFragment extends Fragment {
         /**
          * Callback for when an item has been selected.
          */
-        public void onTrackSelected(TrackData track);
+        void onTrackSelected(TrackData track);
     }
+
+    /*@Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (getArguments().containsKey(SearchArtistActivity.ARTIST_ID)) {
+
+            String artistId = getArguments().getString(SearchArtistActivity.ARTIST_ID);
+            if(Utilities.isOnline(getActivity().getApplicationContext())) {
+                TopTracksTask topTracksTask = new TopTracksTask(getActivity()
+                        .getApplicationContext(), trackList, tracksAdapter);
+                topTracksTask.execute(artistId);
+            }
+        }
+    }*/
 
 
     @Override
@@ -74,19 +88,16 @@ public class TopTracksActivityFragment extends Fragment {
         if( savedInstanceState != null ) {
             trackList = savedInstanceState.getParcelableArrayList(KEY_TRACKS);
         } else {
-            Bundle extras = getActivity().getIntent().getExtras();
-            String artistId = "";
-            if (extras != null) {
-                artistId = extras.getString(SearchArtistActivity.ARTIST_ID);
-            }
+            if (getArguments().containsKey(SearchArtistActivity.ARTIST_ID)) {
 
-            if(Utilities.isOnline(getActivity().getApplicationContext())) {
-                TopTracksTask topTracksTask = new TopTracksTask(getActivity().getApplicationContext(), trackList, tracksAdapter);
-                topTracksTask.execute(artistId);
+                String artistId = getArguments().getString(SearchArtistActivity.ARTIST_ID);
+                if(Utilities.isOnline(getActivity().getApplicationContext())) {
+                    TopTracksTask topTracksTask = new TopTracksTask(getActivity()
+                            .getApplicationContext(), trackList, tracksAdapter);
+                    topTracksTask.execute(artistId);
+                }
             }
         }
-
-
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
